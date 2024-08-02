@@ -1,9 +1,9 @@
 import React from 'react'
 
-const Auth = () => {
+const Profile = () => {
   return (
     <div>index</div>
   )
 }
 
-export default Auth
+export default Profile
