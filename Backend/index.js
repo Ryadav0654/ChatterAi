@@ -4,6 +4,7 @@ import mongoose, { Mongoose } from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { Server } from "socket.io";
+import authRouter from "./routers/authRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 7000;
@@ -18,8 +19,14 @@ app.use(
   })
 )
 
+
+
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.json());
+app.use("/api/auth", authRouter);
+
+
 
 
 // routers
