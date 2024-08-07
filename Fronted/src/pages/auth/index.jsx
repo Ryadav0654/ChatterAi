@@ -8,9 +8,12 @@ import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
 import { LOGIN_ROUTE, SIGNUP_ROUTE } from "@/utils/constants";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserInfo } from "@/slice/authSlice";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -57,7 +60,9 @@ const Auth = () => {
       );
 
       if(response.data.user.id ){
-        if(response.data.user.profileSetup){
+        console.log("response ", response.data.user)
+        dispatch(setUserInfo(response.data.user));
+        if(response.data.user.profileSetup){         
           navigate("/chat");
         }else{
           navigate("/profile");
@@ -76,6 +81,7 @@ const Auth = () => {
         { withCredentials: true }
       );
       if(response.status === 201){
+        dispatch(setUserInfo(response.data.user));
         navigate("/profile");
       }
       console.log({ response });
