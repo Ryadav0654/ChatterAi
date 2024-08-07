@@ -82,3 +82,68 @@ export const login = async (req, res, next) => {
   }
 };
 
+export const getUserInfo = async (req, res, next) => {
+  try {
+  
+    // console.log(req.userId);
+    const userId = req.userId;
+    const userData = await User.findById(userId);
+    if(!userData){
+      return res.status(404).send("User with the given id not found.");
+    }
+
+    return res.status(201).json({
+     
+        id: userData.id,
+        email: userData.email,
+        profileSetup: userData.profileSetup,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        image: userData.image,
+        color: userData.color,
+     
+    });
+
+    
+  } catch (error) {
+    console.log({ error });
+    return res.status(500).send("Internal server error!");
+  }
+};
+export const updateProfile = async (req, res, next) => {
+  try {
+  
+    // console.log(req.userId);
+    const userId = req.userId;
+    // console.log("userId", userId);
+    const {firstName, lastName, color} = req.body;
+
+    if(!firstName || !lastName ){
+      return res.status(400).send("All fields are required.");
+    }
+
+    const userData = await User.findByIdAndUpdate(userId, {firstName, lastName, color, profileSetup:true}, {new:true, runValidators:true});
+
+    if(!userData){
+      return res.status(404).send("User with the given id not found.");
+    }
+
+    return res.status(201).json({
+     
+        id: userData.id,
+        email: userData.email,
+        profileSetup: userData.profileSetup,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        image: userData.image,
+        color: userData.color,
+     
+    });
+
+    
+  } catch (error) {
+    console.log({ error });
+    return res.status(500).send("Internal server error!");
+  }
+};
+
