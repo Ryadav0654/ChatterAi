@@ -77,7 +77,7 @@ function App() {
           element={
             <PrivateRoute>
               <Profile />
-            </PrivateRoute>
+             </PrivateRoute>
           }
         />
         <Route path="*" element={<Navigate to="/auth" />} />

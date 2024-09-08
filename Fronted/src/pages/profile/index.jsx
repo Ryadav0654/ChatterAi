@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { setUserInfo } from "@/slice/authSlice";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
@@ -25,9 +25,10 @@ const Profile = () => {
   const [image, setImage] = useState(null);
   const [hovered, setHovered] = useState(false);
   const [selectedColor, setSelectedColor] = useState(0);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if(userInfo.profileSetup) {
+    if (userInfo.profileSetup) {
       setFirstName(userInfo.firstName);
       setLastName(userInfo.lastName);
       setSelectedColor(userInfo.color);
@@ -35,24 +36,22 @@ const Profile = () => {
   }, [userInfo]);
 
   const validateProfile = () => {
-    if(!firstName || !lastName) {
+    if (!firstName || !lastName) {
       toast.error("First Name and Last Name are required");
       return false;
     }
     return true;
-  }
+  };
   const saveChanges = async () => {
-    
-    if(validateProfile()) {
-      
+    if (validateProfile()) {
       try {
         const response = await apiClient.post(
           UPDATE_PROFILE_ROUTE,
-          {firstName, lastName, color: selectedColor},
+          { firstName, lastName, color: selectedColor },
           { withCredentials: true }
         );
-        console.log("response", {response});
-        if(response.status === 201 && response.data) {
+        console.log("response", { response });
+        if (response.status === 201 && response.data) {
           console.log("response.data", response.data);
           dispatch(setUserInfo(response.data));
           toast.success("Profile updated successfully");
@@ -60,16 +59,34 @@ const Profile = () => {
         }
       } catch (error) {
         console.log({ error });
-        
       }
     }
-  }
+  };
+
+  const handleNavigate = () => {
+    if (userInfo.profileSetup) {
+      navigate("/chat");
+    } else {
+      toast.error("Please setup profile to continue");
+    }
+  };
+
+  const handleFileInput = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleImageChange = async (e) => {};
+
+  const handleDeleteImage = () => {};
 
   return (
     <div className="bg-[#1b1c24] h-[100vh] flex justify-center items-center flex-col gap-10">
       <div className="flex flex-col gap-10 w-[80vw] md:w-max">
         <div>
-          <IoArrowBack className="text-4xl lg:text-6xl text-white text-opacity-90 cursor-pointer" />
+          <IoArrowBack
+            className="text-4xl lg:text-6xl text-white text-opacity-90 cursor-pointer"
+            onClick={handleNavigate}
+          />
         </div>
         <div className="grid grid-cols-2">
           <div
@@ -93,7 +110,10 @@ const Profile = () => {
               )}
             </Avatar>
             {hovered && (
-              <div className="absolute inset-0 bg-black/50 ring-fuchsia-50 flex items-center justify-center rounded-full">
+              <div
+                className="absolute inset-0 bg-black/50 ring-fuchsia-50 flex items-center justify-center rounded-full"
+                onClick={image ? handleDeleteImage : handleFileInput}
+              >
                 {image ? (
                   <FaTrash className="text-3xl text-white cursor-pointer " />
                 ) : (
@@ -101,7 +121,14 @@ const Profile = () => {
                 )}
               </div>
             )}
-            {/* <input type="text"/> */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              className="hidden "
+              name="profile-image"
+              accept=".png, .jpg, .jpeg, .svg, .webp"
+            />
           </div>
           <div className="flex min-w-32 md:min-w-64 flex-col gap-5 text-white items-center justify-center">
             <div className="w-full">
@@ -115,7 +142,6 @@ const Profile = () => {
             <div className="w-full">
               <Input
                 placeholder="first Name"
-               
                 onChange={(e) => setFirstName(e.target.value)}
                 className="rounded-lg p-6 bg-[#2c2e3b] border-none"
               />
@@ -123,7 +149,6 @@ const Profile = () => {
             <div className="w-full">
               <Input
                 placeholder="last Name"
-                
                 onChange={(e) => setLastName(e.target.value)}
                 className="rounded-lg p-6 bg-[#2c2e3b] border-none"
               />
@@ -133,7 +158,9 @@ const Profile = () => {
                 <div
                   key={index}
                   className={`w-8 h-8 rounded-full cursor-pointer transition-all duration-300 ${color} ${
-                    selectedColor === index ? "outline outline-white/50 outline-1" : ""
+                    selectedColor === index
+                      ? "outline outline-white/50 outline-1"
+                      : ""
                   }`}
                   onClick={() => setSelectedColor(index)}
                 >
@@ -144,7 +171,12 @@ const Profile = () => {
           </div>
         </div>
         <div className="w-full">
-          <Button className="w-full h-16 bg-purple-700 hover:bg-purple-900 transition-all duration-300" onClick={saveChanges}>Save Changes</Button>
+          <Button
+            className="w-full h-16 bg-purple-700 hover:bg-purple-900 transition-all duration-300"
+            onClick={saveChanges}
+          >
+            Save Changes
+          </Button>
         </div>
       </div>
     </div>
